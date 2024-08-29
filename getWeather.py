@@ -83,7 +83,7 @@ class WeatherGeter():
 if __name__ == "__main__":
     # Example usage
     Weather_Geter = WeatherGeter(city_data)
-    name_cn = "大祥"
+    name_cn = "岳麓"
     Weather_Geter.get_area_id(name_cn)
     weather_content = Weather_Geter.get_weather_content("7d")
     print(weather_content)

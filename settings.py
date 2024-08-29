@@ -1,0 +1,25 @@
+settings = {
+    "topMost":False,
+    "messageColor":[255,0,0],
+    "stimeColor":[255,0,0],
+    "btimeColor":[255,0,0],
+    "messageTransp":0,  # 透明度
+    "stimeTransp":0,
+    "btimeTransp":0,
+    "messageFontsize":28,
+    "stimeFontsize":18,
+    "btimeFontsize":36,
+    "flushRate":32,
+    "step":2,
+    "areaName":"北京",
+    "noticeText":"--通知--",
+    "sayingText":"--每日一句--",
+    "noticeOnly":False,
+    "setDatetime":[2025,1,1,0,0],
+    "autoDatetime":True,
+    "pptOpentime":[[18,10],[18,20]],
+    "shutdownTime":[22,20],
+    "lunchTime":[12,5],
+    "dinnerTime":[17,35],
+    "loudLevel":0   # (0~2)
+}
