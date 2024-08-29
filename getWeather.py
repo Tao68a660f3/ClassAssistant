@@ -21,7 +21,7 @@ class WeatherGeter():
     def get_area_id(self,name_cn):
         self.area_ID = self.index.get(name_cn)
     
-    def get_weather_content(self,time):
+    def get_weather(self,time):
         if time == "1d":
             url = f"https://www.weather.com.cn/weather1d/{self.area_ID}.shtml"
         elif time == "7d":
@@ -70,6 +70,15 @@ class WeatherGeter():
             content = 'Failed to retrieve the website'
 
         return content
+    
+    def get_weather_content(self,time):
+        try:
+            content = self.get_weather(time)
+        except:
+            content = "Failed to retrieve the website"
+        
+        return content
+
 
 if __name__ == "__main__":
     # Example usage
