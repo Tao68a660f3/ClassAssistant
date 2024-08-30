@@ -2,7 +2,9 @@ import sys, os, ast, win32gui, win32con
 from PyQt5.QtCore import Qt, QDateTime, QDate, QTime, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QSystemTrayIcon, QMenu, QAction, QColorDialog
 from PyQt5.QtGui import QIcon
+from getWeather import *
 import datetime
+
 
 from settingUI import *
 from settings import *
@@ -92,20 +94,47 @@ class MessageWindow(TpWindow):
     def __init__(self, parent, geometry, opa, rate, step):
         super().__init__(geometry, opa)
         self.parent = parent
+        self.WeatherGet = WeatherGeter(city_data)
+        self.WeatherGet.get_area_id(self.parent.SETTING["areaName"])
+        self.index = 0
+        self.moving = False
         self.rate = rate
         self.step = step
         self.xpos = self.width()
         self.text = "'湖南师大二附中F2501班'"
+        self.msg = ["","",self.parent.SETTING["sayingText"],self.parent.SETTING["noticeText"],]
         self.label0 = QLabel(self.text, self)
+
         self.timer1 = QTimer(self)
         self.timer1.timeout.connect(self.label_mover)
         self.timer1.start(int(1000/self.rate))
+
+        self.timer2 = QTimer(self)
+        self.timer2.timeout.connect(self.get_weather)
+        self.timer2.start(600000)
+
+        self.timer3 = QTimer(self)
+        self.timer3.timeout.connect(self.msg_update)
+        self.timer3.start(15000)
+
+        self.get_weather()
 
     def reset_attr(self, color, fontSize, fontFamily):
         self.label0.setText(self.text)
         self.label0.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {fontSize}px; font-family: {fontFamily}; font-weight: bold")
         self.label0.adjustSize()
-        
+
+    def get_weather(self):
+        self.msg[0] = "今日天气" + self.WeatherGet.get_weather_content("1d")
+        self.msg[1] = "本周天气" + self.WeatherGet.get_weather_content("7d")
+
+    def msg_update(self):
+        if  not self.moving: 
+            self.index = self.index + 1 if self.index + 1 < len(self.msg) else 0
+            self.text = self.msg[self.index]
+            self.reset_attr(self.parent.SETTING["messageColor"],self.parent.SETTING["messageFontsize"],self.parent.SETTING["cnFont"])
+            self.xpos = self.width()
+            print(self.text)
 
     def moveEvent(self,event):
         # 在窗口位置改变时执行的操作
@@ -117,16 +146,20 @@ class MessageWindow(TpWindow):
         gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
         self.parent.SETTING["messageGeometry"] = gem
 
-    def change_text(self,text):
-        self.label0.setText(text)
-
     def label_mover(self):
         if self.label0.width() <= self.width():
+            self.moving = False
             self.label0.move(int(0.5*(self.width() - self.label0.width())), int(0.5*(self.height() - self.label0.height())))
-            self.xpos = self.width()
+            
         else:
+            self.moving = True
             self.label0.move(self.xpos, int(0.5*(self.height() - self.label0.height())))
-            self.xpos = self.xpos - self.step if self.xpos > -self.label0.width() else self.width()
+            if self.xpos > -self.label0.width():
+                self.xpos = self.xpos - self.step
+            else:
+                self.xpos = self.width()
+                self.moving = False
+                self.msg_update()
 
 class SettingWindow(QWidget, Ui_Form):
     def __init__(self,parent):
