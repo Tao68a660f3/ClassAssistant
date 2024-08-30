@@ -1,6 +1,6 @@
-import sys
+import sys, os, ast
 from PyQt5.QtCore import Qt, QDateTime, QDate, QTime
-from PyQt5.QtWidgets import QApplication, QWidget, QSystemTrayIcon, QMenu, QAction
+from PyQt5.QtWidgets import QApplication, QWidget, QSystemTrayIcon, QMenu, QAction, QColorDialog
 from PyQt5.QtGui import QIcon
 import datetime
 
@@ -31,6 +31,8 @@ class SettingWindow(QWidget, Ui_Form):
         self.tray_icon.activated.connect(self.showMainWindow)
 
         self.settings = setting_dict
+        self.ColorChoose = QColorDialog(self)
+        self.read_settings()
 
     def exitProgram(self):
         # Add any cleanup code here before exiting
@@ -57,12 +59,78 @@ class SettingWindow(QWidget, Ui_Form):
         self.step.setMaximum(10)
         self.step.setValue(2)
 
+        self.mColor.clicked.connect(lambda: self.get_color("messageColor"))
+        self.sColor.clicked.connect(lambda: self.get_color("stimeColor"))
+        self.bColor.clicked.connect(lambda: self.get_color("btimeColor"))
+
+        self.exitBtn.clicked.connect(self.save_settings)
+
+    def get_color(self, obj):
+        self.ColorChoose.exec_()
+        col = self.ColorChoose.selectedColor()
+        if col.isValid():
+            color = [col.red(), col.green(), col.blue()]
+        else:
+            color = [255,0,0]
+        self.settings[obj] = color
+        self.fill_in_set()
+        QApplication.processEvents()
+
     def read_settings(self):
-        pass
+        if os.path.exists("settings.ini"):
+            with open("settings.ini", "r", encoding="utf-8") as f:
+                self.settings = ast.literal_eval(f.read())
+        else:
+            self.settings = setting_dict
 
 
     def save_settings(self):
-        pass
+        self.settings["areaName"] = self.areaName.text()
+        self.settings["sayingText"] = self.sayingEdit.toPlainText().replace("\n"," ")
+        self.settings["noticeOnly"] = self.noticeOnly.isChecked()
+        self.settings["noticeText"] = self.noticeEdit.toPlainText().replace("\n"," ")
+        self.settings["autoDatetime"] = self.checkBox.isChecked()
+
+        dttmget = self.dateTimeEdit.dateTime()
+        y = dttmget.date().year()
+        m = dttmget.date().month()
+        d = dttmget.date().day()
+        H = dttmget.time().hour()
+        M = dttmget.time().minute()
+        self.settings["setDatetime"] = [y,m,d,H,M]
+
+        self.settings["eatAlarm"] = self.eatalarm.isChecked()
+        
+        lchtime = self.lunchTime.time()
+        dnrtime = self.dinnerTime.time()
+        self.settings["lunchTime"] = [lchtime.hour(),lchtime.minute()]
+        self.settings["dinnerTime"] = [dnrtime.hour(),dnrtime.minute()]
+
+        ppttim = self.pptTime.time()
+        shuttim = self.shutdownTime.time()
+        self.settings["pptOpentime"] = [ppttim.hour(),ppttim.minute()]
+        self.settings["shutdownTime"] = [shuttim.hour(),shuttim.minute()]
+
+        self.settings["mTopMost"] = self.mTopMost.isChecked()
+        self.settings["sTopMost"] = self.sTopMost.isChecked()
+        self.settings["bTopMost"] = self.bTopMost.isChecked()
+
+        self.settings["messageFontsize"] = self.mSize.value()
+        self.settings["stimeFontsize"] = self.sSize.value()
+        self.settings["btimeFontsize"] = self.bSize.value()
+
+        self.settings["messageTransp"] = (100-self.mTransp.value())/100
+        self.settings["stimeTransp"] = (100-self.sTransp.value())/100
+        self.settings["btimeTransp"] = (100-self.bTransp.value())/100
+
+        self.settings["cnFont"] = self.cnFont.text()
+        self.settings["ascFont"] = self.ascFont.text()
+
+        self.settings["flushRate"] = self.rate.value()
+        self.settings["step"] = self.step.value()
+
+        with open("settings.ini","w",encoding="utf-8") as f:
+            f.write(str(self.settings)) 
 
     def fill_in_set(self):
         self.areaName.setText(self.settings["areaName"])
@@ -107,19 +175,15 @@ class SettingWindow(QWidget, Ui_Form):
         self.mTransp.setRange(0, 100)
         self.sTransp.setRange(0, 100)
         self.bTransp.setRange(0, 100)
-        self.mTransp.setValue(100-self.settings["messageTransp"]*100)
-        self.sTransp.setValue(100-self.settings["stimeTransp"]*100)
-        self.bTransp.setValue(100-self.settings["btimeTransp"]*100)
+        self.mTransp.setValue(int(100-self.settings["messageTransp"]*100))
+        self.sTransp.setValue(int(100-self.settings["stimeTransp"]*100))
+        self.bTransp.setValue(int(100-self.settings["btimeTransp"]*100))
 
         self.cnFont.setText(self.settings["cnFont"])
         self.ascFont.setText(self.settings["ascFont"])
 
         self.rate.setValue(self.settings["flushRate"])
         self.step.setValue(self.settings["step"])
-
-
-
-
 
     def showMainWindow(self, reason):
         if reason == QSystemTrayIcon.Trigger:
