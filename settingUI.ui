@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>466</width>
-    <height>446</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,58 +84,7 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="2,0,1,0,1,0,1,0,1,0">
-           <item>
-            <widget class="QSpinBox" name="year"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>年</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="month"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_18">
-             <property name="text">
-              <string>月</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="date"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_19">
-             <property name="text">
-              <string>日</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="hour"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string>时</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="minute"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_21">
-             <property name="text">
-              <string>分</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QDateTimeEdit" name="dateTimeEdit"/>
          </item>
         </layout>
        </item>
@@ -160,24 +109,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="lunchhr"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_29">
-           <property name="text">
-            <string>时</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="lunchmin"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_30">
-           <property name="text">
-            <string>分</string>
-           </property>
-          </widget>
+          <widget class="QTimeEdit" name="lunchTime"/>
          </item>
         </layout>
        </item>
@@ -191,24 +123,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="dinnerhr"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_32">
-           <property name="text">
-            <string>时</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="dinnermin"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_33">
-           <property name="text">
-            <string>分</string>
-           </property>
-          </widget>
+          <widget class="QTimeEdit" name="dinnerTime"/>
          </item>
         </layout>
        </item>
@@ -226,24 +141,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="ppthr"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>时</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="pptmin"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_23">
-           <property name="text">
-            <string>分</string>
-           </property>
-          </widget>
+          <widget class="QTimeEdit" name="pptTime"/>
          </item>
         </layout>
        </item>
@@ -257,24 +155,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="shuthr"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_26">
-           <property name="text">
-            <string>时</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="shutmin"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_27">
-           <property name="text">
-            <string>分</string>
-           </property>
-          </widget>
+          <widget class="QTimeEdit" name="shutdownTime"/>
          </item>
         </layout>
        </item>

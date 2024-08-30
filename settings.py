@@ -1,4 +1,4 @@
-settings = {
+setting_dict = {
     "mTopMost":False,
     "sTopMost":False,
     "bTopMost":False,
@@ -16,7 +16,7 @@ settings = {
     "btimeFontsize":36,
     "cnFont":"msyh",
     "ascFont":"msyh",
-    "flushRate":32,
+    "flushRate":30,
     "step":2,
     "areaName":"北京",
     "noticeText":"--通知--",
