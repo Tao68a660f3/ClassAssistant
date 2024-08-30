@@ -179,7 +179,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QCheckBox" name="mTopMost">
+            <widget class="QPushButton" name="mTopMost">
              <property name="text">
               <string>置顶显示</string>
              </property>
@@ -213,7 +213,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QCheckBox" name="mLock">
+            <widget class="QPushButton" name="mLock">
              <property name="text">
               <string>锁定</string>
              </property>
@@ -253,7 +253,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QCheckBox" name="sTopMost">
+            <widget class="QPushButton" name="sTopMost_2">
              <property name="text">
               <string>置顶显示</string>
              </property>
@@ -287,7 +287,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QCheckBox" name="sLock">
+            <widget class="QPushButton" name="sLock_2">
              <property name="text">
               <string>锁定</string>
              </property>
@@ -331,7 +331,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QCheckBox" name="bTopMost">
+            <widget class="QPushButton" name="bTopMost_2">
              <property name="text">
               <string>置顶显示</string>
              </property>
@@ -365,7 +365,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QCheckBox" name="bLock">
+            <widget class="QPushButton" name="bLock_2">
              <property name="text">
               <string>锁定</string>
              </property>

@@ -1,18 +1,141 @@
-import sys, os, ast
-from PyQt5.QtCore import Qt, QDateTime, QDate, QTime
-from PyQt5.QtWidgets import QApplication, QWidget, QSystemTrayIcon, QMenu, QAction, QColorDialog
+import sys, os, ast, win32gui, win32con
+from PyQt5.QtCore import Qt, QDateTime, QDate, QTime, QTimer
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QSystemTrayIcon, QMenu, QAction, QColorDialog
 from PyQt5.QtGui import QIcon
 import datetime
 
 from settingUI import *
 from settings import *
 
+
+class TpWindow(QWidget):
+    def __init__(self, geometry, opa):
+        super().__init__()
+        self.x = geometry[0]
+        self.y = geometry[1]
+        self.w = geometry[2]
+        self.h = geometry[3]
+        self.setWindowFlags(Qt.Tool)
+        flags = self.windowFlags()
+        self.setWindowFlags(flags | Qt.WindowTransparentForInput | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowOpacity(opa)
+        self.setGeometry(self.x, self.y, self.w, self.h)
+
+        self.timer1 = QTimer(self)
+        self.timer1.timeout.connect(self.check_overlap)
+        self.timer1.start(500)
+
+    def toggle_selectable(self):
+        flags = self.windowFlags()
+        if flags & Qt.WindowTransparentForInput:
+            self.setWindowFlags(flags & ~Qt.WindowTransparentForInput)
+        else:
+            self.setWindowFlags(flags | Qt.WindowTransparentForInput)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.show()
+
+    def toggle_scaleable(self):
+        flags = self.windowFlags()
+        if flags & Qt.WindowMinimizeButtonHint:
+            self.setWindowFlags(flags & ~Qt.WindowMinimizeButtonHint)
+        else:
+            self.setWindowFlags(flags | Qt.WindowMinimizeButtonHint)
+
+        flags = self.windowFlags()
+        if flags & Qt.FramelessWindowHint:
+            self.setWindowFlags(flags & ~Qt.FramelessWindowHint)
+        else:
+            self.setWindowFlags(flags | Qt.FramelessWindowHint)
+            self.toggle_selectable()
+            self.toggle_selectable()
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.show()
+
+    def toggle_lock(self):
+        self.toggle_selectable()
+        self.toggle_scaleable()
+
+    def toggle_topmost(self):
+        flags = self.windowFlags()
+        if flags & Qt.WindowStaysOnTopHint:
+            self.setWindowFlags(flags & ~Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(flags | Qt.WindowStaysOnTopHint)
+        self.show()
+
+    # 在check_overlap方法中调用bring_window_to_top函数来将本窗口移到桌面上方
+    def bring_window_to_top(self,hwnd):
+        win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+        win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+
+    def is_desktop_window(self,hwnd):
+        try:
+            class_name = win32gui.GetClassName(hwnd)
+            return class_name == "Progman" or class_name == "WorkerW"
+        except:
+            return False
+
+    # 在check_overlap方法中调用is_desktop_window函数来确认窗口是否是Windows桌面
+    def check_overlap(self):
+        hwnd = win32gui.GetForegroundWindow()
+        
+        if self.is_desktop_window(hwnd):
+            # print("This is the Windows desktop.")
+            self.bring_window_to_top(self.winId())  # 将本窗口移到桌面上方
+            flags = self.windowFlags()
+            if flags & Qt.WindowStaysOnTopHint:
+                self.setWindowFlags(flags & ~Qt.WindowStaysOnTopHint)
+
+
+class MessageWindow(TpWindow):
+    def __init__(self, parent, geometry, opa, rate, step):
+        super().__init__(geometry, opa)
+        self.parent = parent
+        self.rate = rate
+        self.step = step
+        self.xpos = self.width()
+        self.text = "'湖南师大二附中F2501班'"
+        self.label0 = QLabel(self.text, self)
+        self.timer1 = QTimer(self)
+        self.timer1.timeout.connect(self.label_mover)
+        self.timer1.start(int(1000/self.rate))
+
+    def reset_attr(self, color, fontSize, fontFamily):
+        self.label0.setText(self.text)
+        self.label0.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {fontSize}px; font-family: {fontFamily}; font-weight: bold")
+        self.label0.adjustSize()
+        
+
+    def moveEvent(self,event):
+        # 在窗口位置改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["messageGeometry"] = gem
+
+    def resizeEvent(self, event):
+        # 在窗口大小改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["messageGeometry"] = gem
+
+    def change_text(self,text):
+        self.label0.setText(text)
+
+    def label_mover(self):
+        if self.label0.width() <= self.width():
+            self.label0.move(int(0.5*(self.width() - self.label0.width())), int(0.5*(self.height() - self.label0.height())))
+            self.xpos = self.width()
+        else:
+            self.label0.move(self.xpos, int(0.5*(self.height() - self.label0.height())))
+            self.xpos = self.xpos - self.step if self.xpos > -self.label0.width() else self.width()
+
 class SettingWindow(QWidget, Ui_Form):
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__()
         self.setupUi(self)
         self.initUI()
         self.setWindowFlag(Qt.Tool)
+
+        self.parent = parent
 
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon('smileface.jpg'))
@@ -82,6 +205,7 @@ class SettingWindow(QWidget, Ui_Form):
                 self.settings = ast.literal_eval(f.read())
         else:
             self.settings = setting_dict
+        self.fill_in_set()
 
 
     def save_settings(self):
@@ -111,14 +235,6 @@ class SettingWindow(QWidget, Ui_Form):
         self.settings["pptOpentime"] = [ppttim.hour(),ppttim.minute()]
         self.settings["shutdownTime"] = [shuttim.hour(),shuttim.minute()]
 
-        self.settings["mTopMost"] = self.mTopMost.isChecked()
-        self.settings["sTopMost"] = self.sTopMost.isChecked()
-        self.settings["bTopMost"] = self.bTopMost.isChecked()
-
-        self.settings["mLock"] = self.mLock.isChecked()
-        self.settings["sLock"] = self.sLock.isChecked()
-        self.settings["bLock"] = self.bLock.isChecked()
-
         self.settings["messageFontsize"] = self.mSize.value()
         self.settings["stimeFontsize"] = self.sSize.value()
         self.settings["btimeFontsize"] = self.bSize.value()
@@ -134,7 +250,9 @@ class SettingWindow(QWidget, Ui_Form):
         self.settings["step"] = self.step.value()
 
         with open("settings","w",encoding="utf-8") as f:
-            f.write(str(self.settings)) 
+            f.write(str(self.settings))
+
+        self.parent.init_windows()
 
     def fill_in_set(self):
         self.areaName.setText(self.settings["areaName"])
@@ -160,14 +278,6 @@ class SettingWindow(QWidget, Ui_Form):
         shuttim = self.settings["shutdownTime"]
         self.pptTime.setTime(QTime(ppttim[0],ppttim[1]))
         self.shutdownTime.setTime(QTime(shuttim[0],shuttim[1]))
-
-        self.mTopMost.setChecked(self.settings["mTopMost"])
-        self.sTopMost.setChecked(self.settings["sTopMost"])
-        self.bTopMost.setChecked(self.settings["bTopMost"])
-
-        self.mLock.setChecked(self.settings["mLock"])
-        self.sLock.setChecked(self.settings["sLock"])
-        self.bLock.setChecked(self.settings["bLock"])
 
         mcolor = (self.settings["messageColor"][0], self.settings["messageColor"][1], self.settings["messageColor"][2])
         scolor = (self.settings["stimeColor"][0], self.settings["stimeColor"][1], self.settings["stimeColor"][2])
@@ -197,11 +307,41 @@ class SettingWindow(QWidget, Ui_Form):
         if reason == QSystemTrayIcon.Trigger:
             if self.isHidden():
                 self.show()
+                flags = self.windowFlags()
+                if flags & Qt.WindowStaysOnTopHint:
+                    self.setWindowFlags(flags & ~Qt.WindowStaysOnTopHint)
+                else:
+                    self.setWindowFlags(flags | Qt.WindowStaysOnTopHint)
             else:
                 self.hide()
+
+class RunController():
+    def __init__(self):
+        self.message = ""
+        self.timeDelta = None
+
+        self.SettingWindow = SettingWindow(self)
+        self.SETTING = self.SettingWindow.settings
+
+        self.MessageWindow = MessageWindow(self,self.SETTING["messageGeometry"],self.SETTING["messageTransp"],self.SETTING["flushRate"],self.SETTING["step"])
+
+        self.init_windows()
+
+
+        self.SettingWindow.mTopMost.clicked.connect(self.MessageWindow.toggle_topmost)
+        self.SettingWindow.mLock.clicked.connect(self.MessageWindow.toggle_lock)
+
+
+        
+
+    def init_windows(self):
+        self.MessageWindow.reset_attr(self.SETTING["messageColor"],self.SETTING["messageFontsize"],self.SETTING["cnFont"])
+        self.MessageWindow.show()
+
+
+
             
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    widget = SettingWindow()
-    widget.fill_in_set()
+    Run = RunController()
     sys.exit(app.exec_())

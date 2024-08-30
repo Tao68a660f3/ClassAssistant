@@ -17,7 +17,7 @@ class TpWindow(QWidget):
 
         self.timer1 = QTimer(self)
         self.timer1.timeout.connect(self.check_overlap)
-        self.timer1.start(2000)
+        self.timer1.start(500)
 
     def toggle_selectable(self):
         flags = self.windowFlags()
@@ -71,7 +71,7 @@ class TpWindow(QWidget):
         hwnd = win32gui.GetForegroundWindow()
         
         if self.is_desktop_window(hwnd):
-            print("This is the Windows desktop.")
+            # print("This is the Windows desktop.")
             self.bring_window_to_top(self.winId())  # 将本窗口移到桌面上方
             flags = self.windowFlags()
             if flags & Qt.WindowStaysOnTopHint:
