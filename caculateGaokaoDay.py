@@ -1,10 +1,9 @@
-import datetime
+from datetime import datetime
 
-class GaokaoTime():
-    def __init__(self, detTime = None):
-        self.detTime = detTime
-        self.days = None
-        self.hours = None
-        self.minutes = None
+def next_gaokao():
+    year = datetime.now().year
+    print(year)
+    if datetime.now() > 
 
-    def 
+if __name__ == "__main__":
+    next_gaokao()

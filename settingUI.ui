@@ -31,7 +31,7 @@
        <item>
         <widget class="QPushButton" name="exitBtn">
          <property name="text">
-          <string>退出程序</string>
+          <string>保存设置</string>
          </property>
         </widget>
        </item>
@@ -213,6 +213,13 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
+            <widget class="QCheckBox" name="mLock">
+             <property name="text">
+              <string>锁定</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>透明度</string>
@@ -279,6 +286,13 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="sLock">
+             <property name="text">
+              <string>锁定</string>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QLabel" name="label_5">
              <property name="text">
@@ -350,6 +364,13 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="bLock">
+             <property name="text">
+              <string>锁定</string>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QLabel" name="label_9">
              <property name="text">

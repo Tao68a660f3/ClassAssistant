@@ -77,8 +77,8 @@ class SettingWindow(QWidget, Ui_Form):
         QApplication.processEvents()
 
     def read_settings(self):
-        if os.path.exists("settings.ini"):
-            with open("settings.ini", "r", encoding="utf-8") as f:
+        if os.path.exists("settings"):
+            with open("settings", "r", encoding="utf-8") as f:
                 self.settings = ast.literal_eval(f.read())
         else:
             self.settings = setting_dict
@@ -115,6 +115,10 @@ class SettingWindow(QWidget, Ui_Form):
         self.settings["sTopMost"] = self.sTopMost.isChecked()
         self.settings["bTopMost"] = self.bTopMost.isChecked()
 
+        self.settings["mLock"] = self.mLock.isChecked()
+        self.settings["sLock"] = self.sLock.isChecked()
+        self.settings["bLock"] = self.bLock.isChecked()
+
         self.settings["messageFontsize"] = self.mSize.value()
         self.settings["stimeFontsize"] = self.sSize.value()
         self.settings["btimeFontsize"] = self.bSize.value()
@@ -129,7 +133,7 @@ class SettingWindow(QWidget, Ui_Form):
         self.settings["flushRate"] = self.rate.value()
         self.settings["step"] = self.step.value()
 
-        with open("settings.ini","w",encoding="utf-8") as f:
+        with open("settings","w",encoding="utf-8") as f:
             f.write(str(self.settings)) 
 
     def fill_in_set(self):
@@ -160,6 +164,10 @@ class SettingWindow(QWidget, Ui_Form):
         self.mTopMost.setChecked(self.settings["mTopMost"])
         self.sTopMost.setChecked(self.settings["sTopMost"])
         self.bTopMost.setChecked(self.settings["bTopMost"])
+
+        self.mLock.setChecked(self.settings["mLock"])
+        self.sLock.setChecked(self.settings["sLock"])
+        self.bLock.setChecked(self.settings["bLock"])
 
         mcolor = (self.settings["messageColor"][0], self.settings["messageColor"][1], self.settings["messageColor"][2])
         scolor = (self.settings["stimeColor"][0], self.settings["stimeColor"][1], self.settings["stimeColor"][2])
