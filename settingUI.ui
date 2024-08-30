@@ -28,6 +28,13 @@
        <item>
         <widget class="QLineEdit" name="areaName"/>
        </item>
+       <item>
+        <widget class="QPushButton" name="exitBtn">
+         <property name="text">
+          <string>退出程序</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>

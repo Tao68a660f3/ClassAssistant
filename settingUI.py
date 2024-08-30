@@ -27,6 +27,9 @@ class Ui_Form(object):
         self.areaName = QtWidgets.QLineEdit(Form)
         self.areaName.setObjectName("areaName")
         self.horizontalLayout_9.addWidget(self.areaName)
+        self.exitBtn = QtWidgets.QPushButton(Form)
+        self.exitBtn.setObjectName("exitBtn")
+        self.horizontalLayout_9.addWidget(self.exitBtn)
         self.verticalLayout_10.addLayout(self.horizontalLayout_9)
         self.verticalLayout_8 = QtWidgets.QVBoxLayout()
         self.verticalLayout_8.setObjectName("verticalLayout_8")
@@ -335,6 +338,7 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.label_14.setText(_translate("Form", "天气预报地区名称"))
+        self.exitBtn.setText(_translate("Form", "退出程序"))
         self.label_15.setText(_translate("Form", "每日一语"))
         self.label_16.setText(_translate("Form", "通知"))
         self.noticeOnly.setText(_translate("Form", "只显示通知"))
