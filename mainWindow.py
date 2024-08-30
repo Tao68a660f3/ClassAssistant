@@ -96,13 +96,13 @@ class MessageWindow(TpWindow):
         self.parent = parent
         self.WeatherGet = WeatherGeter(city_data)
         self.WeatherGet.get_area_id(self.parent.SETTING["areaName"])
-        self.index = 0
+        self.index = -1
         self.moving = False
         self.rate = rate
         self.step = step
         self.xpos = self.width()
         self.text = "'湖南师大二附中F2501班'"
-        self.msg = ["","",self.parent.SETTING["sayingText"],self.parent.SETTING["noticeText"],]
+        self.msg = ["","",]
         self.label0 = QLabel(self.text, self)
 
         self.timer1 = QTimer(self)
@@ -111,11 +111,11 @@ class MessageWindow(TpWindow):
 
         self.timer2 = QTimer(self)
         self.timer2.timeout.connect(self.get_weather)
-        self.timer2.start(600000)
+        self.timer2.start(300000)
 
         self.timer3 = QTimer(self)
         self.timer3.timeout.connect(self.msg_update)
-        self.timer3.start(15000)
+        self.timer3.start(30000)
 
         self.get_weather()
 
@@ -135,7 +135,9 @@ class MessageWindow(TpWindow):
             self.reset_attr(self.parent.SETTING["messageColor"],self.parent.SETTING["messageFontsize"],self.parent.SETTING["cnFont"])
             self.xpos = self.width()
             print(self.text)
-
+        self.msg[2] = self.parent.SETTING["noticeText"]
+        self.msg[3] = self.parent.SETTING["sayingText"]
+        
     def moveEvent(self,event):
         # 在窗口位置改变时执行的操作
         gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
