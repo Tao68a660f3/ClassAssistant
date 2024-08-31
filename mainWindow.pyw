@@ -654,6 +654,7 @@ class RunController():
                 ok = canteen.addButton('当然可以', QMessageBox.AcceptRole)  # 使用 addButton() 方法添加自定义按钮
                 no = canteen.addButton('讲完这个', QMessageBox.RejectRole)
                 canteen.setDefaultButton(ok)
+                canteen.setWindowFlag(Qt.WindowStaysOnTopHint)
                 happy = canteen.exec_()
                 if happy == QMessageBox.AcceptRole:
                     self.canteenAccept = True
