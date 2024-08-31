@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>466</width>
-    <height>450</height>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -133,6 +133,13 @@
       <layout class="QHBoxLayout" name="horizontalLayout_15">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <item>
+          <widget class="QPushButton" name="OpenPPT">
+           <property name="text">
+            <string>打开PPT</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="label_22">
            <property name="text">

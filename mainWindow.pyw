@@ -630,7 +630,7 @@ class RunController():
             self.SettingWindow.ShutdownDlg.show_dlg()
             self.shut_target_time = self.shut_target_time + datetime.timedelta(days=1)
 
-        eat = (current_time >= t_lunch_time + datetime.timedelta(seconds= -15) and current_time < t_lunch_time) or (current_time >= t_dinner_time + datetime.timedelta(seconds= -15) and current_time < t_dinner_time)
+        eat = (current_time >= t_lunch_time + datetime.timedelta(seconds= -45) and current_time < t_lunch_time) or (current_time >= t_dinner_time + datetime.timedelta(seconds= -15) and current_time < t_dinner_time)
 
         if eat and self.SETTING["eatAlarm"]:
             self.MessageWindow.text = "请准备下课用餐"
@@ -647,8 +647,18 @@ class RunController():
                 happy = canteen.exec_()
                 if happy == QMessageBox.AcceptRole:
                     self.canteenAccept = True
+                self.continueRunning()  # 继续运行程序
         else:
             self.canteenAccept = False
+
+    def continueRunning(self):
+        # 阻止主事件循环退出，使程序继续运行
+        app.aboutToQuit.connect(self.keepRunning)
+
+    def keepRunning(self):
+        # 添加一个循环来保持应用程序运行
+        while True:
+            app.processEvents()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
