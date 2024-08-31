@@ -1,4 +1,4 @@
-import sys, os, ast, win32gui, win32con
+import sys, os, ast, shutil, win32gui, win32con
 from PyQt5.QtCore import Qt, QDateTime, QDate, QTime, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QSystemTrayIcon, QMenu, QAction, QColorDialog
 from PyQt5.QtGui import QIcon
@@ -195,7 +195,7 @@ class SmallWindow(TpWindow):
         self.TIMETO = None
         self.TimeDelta = None
         self.text1 = "距高考还剩%GaoKaoDay%天"
-        self.text2 = "%Y/%m/%d %H:%m:%S"
+        self.text2 = "%Y/%m/%d %H:%M:%S"
         self.label1 = QLabel(self.text1, self)
         self.label2 = QLabel(self.text2, self)
         self.reset_time()
@@ -523,9 +523,17 @@ class RunController():
     def __init__(self):
         self.message = ""
         self.timeDelta = None
+        self.thisPPT = None
 
         self.SettingWindow = SettingWindow(self)
         self.SETTING = self.SettingWindow.settings
+
+        self.create_ppt()
+
+        # 设置目标时间
+        ppt_time = self.SETTING["pptOpentime"]
+        self.ppt_target_time = datetime.datetime.combine(datetime.date.today(),datetime.time(ppt_time[0], ppt_time[1]))
+        # self.ppt_target_time = datetime.datetime.combine(datetime.date.today(),datetime.time(10, 56))
 
         self.MessageWindow = MessageWindow(self,self.SETTING["messageGeometry"],self.SETTING["messageTransp"],self.SETTING["flushRate"],self.SETTING["step"])
         self.SmallWindow = SmallWindow(self,self.SETTING["stimeGeometry"],self.SETTING["stimeTransp"])
@@ -533,20 +541,50 @@ class RunController():
 
         self.init_windows()
 
-
         self.SettingWindow.mTopMost.clicked.connect(self.MessageWindow.toggle_topmost)
         self.SettingWindow.mLock.clicked.connect(self.MessageWindow.toggle_lock)
         self.SettingWindow.sTopMost.clicked.connect(self.SmallWindow.toggle_topmost)
         self.SettingWindow.sLock.clicked.connect(self.SmallWindow.toggle_lock)
         self.SettingWindow.bTopMost.clicked.connect(self.BigWindow.toggle_topmost)
         self.SettingWindow.bLock.clicked.connect(self.BigWindow.toggle_lock)
-        
+
+        self.timer1 = QTimer()
+        self.timer1.timeout.connect(self.check_time)
+        self.timer1.start(1500)
+
+    def create_ppt(self):
+        dirname = os.path.join("homework",str(datetime.datetime.now().month))
+        dirname = os.path.abspath(dirname)
+        filename = datetime.datetime.now().strftime("%y%m%d.pptx")
+        self.thisPPT = os.path.join(os.path.abspath(dirname),filename)
+        print(self.thisPPT)
+        print(dirname)
+
+        try:
+            os.mkdir("homework")
+            os.mkdir(dirname)
+            shutil.copy("template.pptx",self.thisPPT)
+        except:
+            pass        
 
     def init_windows(self):
         self.MessageWindow.reset_attr(self.SETTING["messageColor"],self.SETTING["messageFontsize"],self.SETTING["cnFont"])
         self.MessageWindow.show()
         self.SmallWindow.show()
         self.BigWindow.show()
+
+    def do_something(self):
+        print("Action performed at specific time")
+
+    def open_ppt(self):
+        os.startfile(self.thisPPT)
+
+    def check_time(self):
+        current_time = datetime.datetime.now()
+        
+        if current_time >= self.ppt_target_time:
+            self.open_ppt()
+            self.ppt_target_time = self.ppt_target_time + datetime.timedelta(days=1)
 
             
 if __name__ == '__main__':
