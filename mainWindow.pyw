@@ -115,7 +115,7 @@ class MessageWindow(TpWindow):
 
         self.timer3 = QTimer(self)
         self.timer3.timeout.connect(self.msg_update)
-        self.timer3.start(1000)
+        self.timer3.start(30000)
 
         self.get_weather()
 
@@ -125,23 +125,25 @@ class MessageWindow(TpWindow):
         self.label0.adjustSize()
 
     def get_weather(self):
-        self.msg[0] = "今日天气" + self.WeatherGet.get_weather_content("1d")
-        self.msg[1] = "本周天气" + self.WeatherGet.get_weather_content("7d")
+        today = "今日天气" + self.WeatherGet.get_weather_content("1d")
+        sevenday = "本周天气" + self.WeatherGet.get_weather_content("7d")
+        self.msg[0] = today if "fail" not in today.lower() else self.msg[0]
+        self.msg[1] = sevenday if "fail" not in sevenday.lower() else self.msg[1]
 
     def msg_update(self):
+        self.msg[2] = self.parent.SETTING["noticeText"]
+        self.msg[3] = self.parent.SETTING["sayingText"]
+
         if not self.moving: 
             self.index = self.index + 1 if self.index + 1 < len(self.msg) else 0
-            if self.msg[self.index].strip() == "" :
+            while self.msg[self.index].strip() == "" :
                 self.index = self.index + 1 if self.index + 1 < len(self.msg) else 0
             self.text = self.msg[self.index]
             if self.parent.SETTING["noticeOnly"]:
                 self.text = self.parent.SETTING["noticeText"]
             self.reset_attr(self.parent.SETTING["messageColor"],self.parent.SETTING["messageFontsize"],self.parent.SETTING["cnFont"])
             self.xpos = self.width()
-            print(self.text)
-
-        self.msg[2] = self.parent.SETTING["noticeText"]
-        self.msg[3] = self.parent.SETTING["sayingText"]
+        # print(self.text)
         
     def moveEvent(self,event):
         # 在窗口位置改变时执行的操作
