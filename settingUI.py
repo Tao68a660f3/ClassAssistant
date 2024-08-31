@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(466, 450)
+        Form.resize(466, 478)
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.verticalLayout_10 = QtWidgets.QVBoxLayout()
@@ -92,6 +92,9 @@ class Ui_Form(object):
         self.horizontalLayout_15.setObjectName("horizontalLayout_15")
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
+        self.OpenPPT = QtWidgets.QPushButton(Form)
+        self.OpenPPT.setObjectName("OpenPPT")
+        self.horizontalLayout_13.addWidget(self.OpenPPT)
         self.label_22 = QtWidgets.QLabel(Form)
         self.label_22.setObjectName("label_22")
         self.horizontalLayout_13.addWidget(self.label_22)
@@ -284,6 +287,7 @@ class Ui_Form(object):
         self.eatalarm.setText(_translate("Form", "提醒用餐"))
         self.label_28.setText(_translate("Form", "午餐时间"))
         self.label_31.setText(_translate("Form", "晚餐时间"))
+        self.OpenPPT.setText(_translate("Form", "打开PPT"))
         self.label_22.setText(_translate("Form", "PPT开启时间"))
         self.label_25.setText(_translate("Form", "询问关机时间"))
         self.label_3.setText(_translate("Form", "消息滚动框"))

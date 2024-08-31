@@ -89,6 +89,8 @@ class TpWindow(QWidget):
             if flags & Qt.WindowStaysOnTopHint:
                 self.setWindowFlags(flags & ~Qt.WindowStaysOnTopHint)
 
+        self.show()
+
 class BigWindow(TpWindow):
     def __init__(self, parent, geometry, opa):
         super().__init__(geometry, opa)
@@ -116,6 +118,7 @@ class BigWindow(TpWindow):
         if self.parent.SETTING["autoDatetime"]:
             self.TimeDelta = self.next_gaokao()
         else:
+            self.reset_time()
             self.TimeDelta = self.TIMETO - datetime.datetime.now()
 
     def next_gaokao(self):
@@ -381,6 +384,7 @@ class SettingWindow(QWidget, Ui_Form):
         self.read_settings()
 
     def exitProgram(self):
+        self.parent.keep_run = False
         # Add any cleanup code here before exiting
         QApplication.instance().quit()
 
@@ -409,7 +413,11 @@ class SettingWindow(QWidget, Ui_Form):
         self.sColor.clicked.connect(lambda: self.get_color("stimeColor"))
         self.bColor.clicked.connect(lambda: self.get_color("btimeColor"))
 
+        self.OpenPPT.clicked.connect(self.open_ppt)
         self.exitBtn.clicked.connect(self.save_settings)
+
+    def open_ppt(self):
+        os.startfile(self.parent.thisPPT)
 
     def get_color(self, obj):
         self.ColorChoose.exec_()
@@ -540,6 +548,7 @@ class SettingWindow(QWidget, Ui_Form):
 
 class RunController():
     def __init__(self):
+        self.keep_run = True
         self.message = ""
         self.timeDelta = None
         self.thisPPT = None
@@ -630,7 +639,7 @@ class RunController():
             self.SettingWindow.ShutdownDlg.show_dlg()
             self.shut_target_time = self.shut_target_time + datetime.timedelta(days=1)
 
-        eat = (current_time >= t_lunch_time + datetime.timedelta(seconds= -45) and current_time < t_lunch_time) or (current_time >= t_dinner_time + datetime.timedelta(seconds= -15) and current_time < t_dinner_time)
+        eat = (current_time >= t_lunch_time + datetime.timedelta(seconds= -15) and current_time < t_lunch_time) or (current_time >= t_dinner_time + datetime.timedelta(seconds= -15) and current_time < t_dinner_time)
 
         if eat and self.SETTING["eatAlarm"]:
             self.MessageWindow.text = "请准备下课用餐"
@@ -657,7 +666,7 @@ class RunController():
 
     def keepRunning(self):
         # 添加一个循环来保持应用程序运行
-        while True:
+        while self.keep_run:
             app.processEvents()
 
 if __name__ == '__main__':
