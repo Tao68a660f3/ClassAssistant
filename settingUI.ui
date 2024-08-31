@@ -253,7 +253,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QPushButton" name="sTopMost_2">
+            <widget class="QPushButton" name="sTopMost">
              <property name="text">
               <string>置顶显示</string>
              </property>
@@ -287,7 +287,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QPushButton" name="sLock_2">
+            <widget class="QPushButton" name="sLock">
              <property name="text">
               <string>锁定</string>
              </property>
@@ -331,7 +331,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QPushButton" name="bTopMost_2">
+            <widget class="QPushButton" name="bTopMost">
              <property name="text">
               <string>置顶显示</string>
              </property>
@@ -365,7 +365,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QPushButton" name="bLock_2">
+            <widget class="QPushButton" name="bLock">
              <property name="text">
               <string>锁定</string>
              </property>

@@ -89,6 +89,167 @@ class TpWindow(QWidget):
             if flags & Qt.WindowStaysOnTopHint:
                 self.setWindowFlags(flags & ~Qt.WindowStaysOnTopHint)
 
+class BigWindow(TpWindow):
+    def __init__(self, parent, geometry, opa):
+        super().__init__(geometry, opa)
+        self.parent = parent
+        self.TIMETO = None
+        self.TimeDelta = None
+        self.text1 = "距%Year%年高考还剩"
+        self.text2 = "%d|%H|%m"
+        self.text3 = "Day"
+        self.text4 = "Hour"
+        self.text5 = "Min"
+        self.label1 = QLabel(self.text1, self)
+        self.label2 = QLabel(self.text2, self)
+        self.label3 = QLabel(self.text3, self)
+        self.label4 = QLabel(self.text4, self)
+        self.label5 = QLabel(self.text5, self)
+        self.reset_time()
+        self.calculate_deltatime()
+
+        self.timer1 = QTimer(self)
+        self.timer1.timeout.connect(self.reset_attr)
+        self.timer1.start(1000)
+
+    def calculate_deltatime(self):
+        if self.parent.SETTING["autoDatetime"]:
+            self.TimeDelta = self.next_gaokao()
+        else:
+            self.TimeDelta = self.TIMETO - datetime.datetime.now()
+
+    def next_gaokao(self):
+        year = datetime.datetime.now().year
+        thisGaokao = datetime.datetime(year,6,7,9,0)
+        timeDelta = thisGaokao - datetime.datetime.now()
+        if timeDelta.days < 0:
+            thisGaokao = datetime.datetime(year+1,6,7,9,0)
+        timeDelta = thisGaokao - datetime.datetime.now()
+        self.TIMETO = thisGaokao
+        return timeDelta
+    
+    def reset_time(self):
+        t = self.parent.SETTING["setDatetime"]
+        self.TIMETO = datetime.datetime(year = t[0], month = t[1], day = t[2], hour = t[3],minute = t[4],second = 0)
+
+    def reset_attr(self):
+        color, fontSize, fontFamily = self.parent.SETTING["btimeColor"], self.parent.SETTING["btimeFontsize"], self.parent.SETTING["ascFont"]
+        self.calculate_deltatime()
+        start = int(0.5*(self.width()-self.label2.width()))
+        width = self.label2.width()
+        days = str(self.TimeDelta.days)
+        hours = str(self.TimeDelta.seconds//3600)
+        mins = str((self.TimeDelta.seconds%3600)//60)
+        if len(hours) == 1:
+            hours = "0"+hours
+        if len(mins) == 1:
+            mins = "0"+mins
+        leng = len(days)+len(hours)+len(mins)+2
+        w = int(width/leng)
+        w0 = int(width*len(days)/leng)
+        w1 = int(width*len(hours)/leng)
+        w2 = int(width*len(mins)/leng)
+
+        self.label1.setText(self.text1.replace("%Year%",str(self.TIMETO.year)))
+        self.label1.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {fontSize}px; font-family: {fontFamily}; font-weight: bold")
+        self.label1.adjustSize()
+        self.label1.move(0,0)
+
+        self.label2.setText(days+"|"+hours+"|"+mins)
+        self.label2.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {int(fontSize*2.5)}px; font-family: {fontFamily}; font-weight: bold")
+        self.label2.adjustSize()
+        self.label2.move(start,self.label1.height()+int(0.5*self.label1.height()))
+
+        self.label3.setText(self.text3)
+        self.label3.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {int(fontSize*0.8)}px; font-family: {fontFamily}; font-weight: bold")
+        self.label3.adjustSize()
+        self.label3.move(start+int(0.5*(w0-self.label3.width())),self.label2.height()+int(1.5*self.label1.height()))
+
+        self.label4.setText(self.text4)
+        self.label4.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {int(fontSize*0.8)}px; font-family: {fontFamily}; font-weight: bold")
+        self.label4.adjustSize()
+        self.label4.move(start+w0+w+int(0.5*(w1-self.label4.width())),self.label2.height()+int(1.5*self.label1.height()))
+
+        self.label5.setText(self.text5)
+        self.label5.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {int(fontSize*0.8)}px; font-family: {fontFamily}; font-weight: bold")
+        self.label5.adjustSize()
+        self.label5.move(start+w0+w1+2*w+int(0.5*(w2-self.label5.width())),self.label2.height()+int(1.5*self.label1.height()))
+
+        self.resize(max(self.label1.width(),self.label2.width()), self.label1.height()+int(2*self.label2.height()))
+
+    # 每一个窗口类都加上这两个事件处理
+    def moveEvent(self,event):
+        # 在窗口位置改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["btimeGeometry"] = gem
+
+    def resizeEvent(self, event):
+        # 在窗口大小改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["btimeGeometry"] = gem
+
+class SmallWindow(TpWindow):
+    def __init__(self, parent, geometry, opa):
+        super().__init__(geometry, opa)
+        self.parent = parent
+        self.TIMETO = None
+        self.TimeDelta = None
+        self.text1 = "距高考还剩%GaoKaoDay%天"
+        self.text2 = "%Y/%m/%d %H:%m:%S"
+        self.label1 = QLabel(self.text1, self)
+        self.label2 = QLabel(self.text2, self)
+        self.reset_time()
+        self.calculate_deltatime()
+
+        self.timer1 = QTimer(self)
+        self.timer1.timeout.connect(self.reset_attr)
+        self.timer1.start(1000)
+
+    def calculate_deltatime(self):
+        if self.parent.SETTING["autoDatetime"]:
+            self.TimeDelta = self.next_gaokao()
+        else:
+            self.TimeDelta = self.TIMETO - datetime.datetime.now()
+
+    def next_gaokao(self):
+        year = datetime.datetime.now().year
+        thisGaokao = datetime.datetime(year,6,7,9,0)
+        timeDelta = thisGaokao - datetime.datetime.now()
+        if timeDelta.days < 0:
+            thisGaokao = datetime.datetime(year+1,6,7,9,0)
+        timeDelta = thisGaokao - datetime.datetime.now()
+        return timeDelta
+    
+    def reset_time(self):
+        t = self.parent.SETTING["setDatetime"]
+        self.TIMETO = datetime.datetime(year = t[0], month = t[1], day = t[2], hour = t[3],minute = t[4],second = 0)
+
+    def reset_attr(self):
+        color, fontSize, fontFamily = self.parent.SETTING["stimeColor"], self.parent.SETTING["stimeFontsize"], self.parent.SETTING["cnFont"]
+        self.calculate_deltatime()
+
+        self.label1.setText(self.text1.replace("%GaoKaoDay%",str(self.TimeDelta.days)))
+        self.label1.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {int(fontSize*1.25)}px; font-family: {fontFamily}; font-weight: bold")
+        self.label1.adjustSize()
+        self.label1.move(int(0.5*(self.width()-self.label1.width())),0)
+
+        self.label2.setText(datetime.datetime.now().strftime(self.text2))
+        self.label2.setStyleSheet(f"color: rgb{tuple(color)}; font-size: {fontSize}px; font-family: {fontFamily}; font-weight: bold")
+        self.label2.adjustSize()
+        self.label2.move(int(0.5*(self.width()-self.label2.width())),self.label1.height()+int(0.5*self.label2.height()))
+
+        self.resize(max(self.label1.width(),self.label2.width()), self.label1.height()+int(1.5*self.label2.height()))
+
+    # 每一个窗口类都加上这两个事件处理
+    def moveEvent(self,event):
+        # 在窗口位置改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["stimeGeometry"] = gem
+
+    def resizeEvent(self, event):
+        # 在窗口大小改变时执行的操作
+        gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
+        self.parent.SETTING["stimeGeometry"] = gem
 
 class MessageWindow(TpWindow):
     def __init__(self, parent, geometry, opa, rate, step):
@@ -145,6 +306,7 @@ class MessageWindow(TpWindow):
             self.xpos = self.width()
         # print(self.text)
         
+    # 每一个窗口类都加上这两个事件处理
     def moveEvent(self,event):
         # 在窗口位置改变时执行的操作
         gem = [self.geometry().x(), self.geometry().y(), self.geometry().width(), self.geometry().height()]
@@ -366,21 +528,25 @@ class RunController():
         self.SETTING = self.SettingWindow.settings
 
         self.MessageWindow = MessageWindow(self,self.SETTING["messageGeometry"],self.SETTING["messageTransp"],self.SETTING["flushRate"],self.SETTING["step"])
+        self.SmallWindow = SmallWindow(self,self.SETTING["stimeGeometry"],self.SETTING["stimeTransp"])
+        self.BigWindow = BigWindow(self,self.SETTING["btimeGeometry"],self.SETTING["btimeTransp"])
 
         self.init_windows()
 
 
         self.SettingWindow.mTopMost.clicked.connect(self.MessageWindow.toggle_topmost)
         self.SettingWindow.mLock.clicked.connect(self.MessageWindow.toggle_lock)
-
-
+        self.SettingWindow.sTopMost.clicked.connect(self.SmallWindow.toggle_topmost)
+        self.SettingWindow.sLock.clicked.connect(self.SmallWindow.toggle_lock)
+        self.SettingWindow.bTopMost.clicked.connect(self.BigWindow.toggle_topmost)
+        self.SettingWindow.bLock.clicked.connect(self.BigWindow.toggle_lock)
         
 
     def init_windows(self):
         self.MessageWindow.reset_attr(self.SETTING["messageColor"],self.SETTING["messageFontsize"],self.SETTING["cnFont"])
         self.MessageWindow.show()
-
-
+        self.SmallWindow.show()
+        self.BigWindow.show()
 
             
 if __name__ == '__main__':
