@@ -1,6 +1,6 @@
 import sys, os, ast, shutil, win32gui, win32con
 from PyQt5.QtCore import Qt, QDateTime, QDate, QTime, QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QSystemTrayIcon, QMenu, QAction, QColorDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QSystemTrayIcon, QMenu, QAction, QColorDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 from getWeather import *
 import datetime
@@ -332,6 +332,24 @@ class MessageWindow(TpWindow):
                 self.moving = False
                 self.msg_update()
 
+class ShutdownDialog(QWidget):
+    def __init__(self,parent):
+        super().__init__(parent)
+
+    def show_dlg(self):
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.shutdown)
+        self.timer.start(1000)  # 10 seconds
+        reply = QMessageBox.question(self, '关机确认', '是否要关机？', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.No:
+            self.timer.stop()
+
+    def shutdown(self):
+        # 在这里编写关机的代码，例如调用系统命令关机
+        print("关机")
+        self.timer.stop()
+
 class SettingWindow(QWidget, Ui_Form):
     def __init__(self,parent):
         super().__init__()
@@ -359,6 +377,7 @@ class SettingWindow(QWidget, Ui_Form):
 
         self.settings = setting_dict
         self.ColorChoose = QColorDialog(self)
+        self.ShutdownDlg = ShutdownDialog(self)
         self.read_settings()
 
     def exitProgram(self):
@@ -524,6 +543,7 @@ class RunController():
         self.message = ""
         self.timeDelta = None
         self.thisPPT = None
+        self.canteenAccept = False
 
         self.SettingWindow = SettingWindow(self)
         self.SETTING = self.SettingWindow.settings
@@ -533,7 +553,9 @@ class RunController():
         # 设置目标时间
         ppt_time = self.SETTING["pptOpentime"]
         self.ppt_target_time = datetime.datetime.combine(datetime.date.today(),datetime.time(ppt_time[0], ppt_time[1]))
-        # self.ppt_target_time = datetime.datetime.combine(datetime.date.today(),datetime.time(10, 56))
+
+        shut_time = self.SETTING["shutdownTime"]
+        self.shut_target_time = datetime.datetime.combine(datetime.date.today(),datetime.time(shut_time[0], shut_time[1]))
 
         self.MessageWindow = MessageWindow(self,self.SETTING["messageGeometry"],self.SETTING["messageTransp"],self.SETTING["flushRate"],self.SETTING["step"])
         self.SmallWindow = SmallWindow(self,self.SETTING["stimeGeometry"],self.SETTING["stimeTransp"])
@@ -580,13 +602,54 @@ class RunController():
         os.startfile(self.thisPPT)
 
     def check_time(self):
+        # 更新目标时间
+        ppt_time = self.SETTING["pptOpentime"]
+        ppt_target_time_day = self.ppt_target_time.date()
+        ppt_target_time_min = datetime.time(ppt_time[0],ppt_time[1])
+        self.ppt_target_time = datetime.datetime.combine(ppt_target_time_day,ppt_target_time_min)
+
+        shut_time = self.SETTING["shutdownTime"]
+        shut_target_time_day = self.shut_target_time.date()
+        shut_target_time_min = datetime.time(shut_time[0],shut_time[1])
+        self.shut_target_time = datetime.datetime.combine(shut_target_time_day,shut_target_time_min)
+
+        lunch_time = self.SETTING["lunchTime"]
+        dinner_time = self.SETTING["dinnerTime"]
+        t_lunch_time = datetime.time(lunch_time[0],lunch_time[1])
+        t_dinner_time = datetime.time(dinner_time[0],dinner_time[1])
+        t_lunch_time = datetime.datetime.combine(datetime.datetime.today(),t_lunch_time)
+        t_dinner_time = datetime.datetime.combine(datetime.datetime.today(),t_dinner_time)
+
         current_time = datetime.datetime.now()
         
         if current_time >= self.ppt_target_time:
             self.open_ppt()
             self.ppt_target_time = self.ppt_target_time + datetime.timedelta(days=1)
 
+        if current_time >= self.shut_target_time and current_time < self.shut_target_time + datetime.timedelta(seconds=60):
+            self.SettingWindow.ShutdownDlg.show_dlg()
+            self.shut_target_time = self.shut_target_time + datetime.timedelta(days=1)
+
+        eat = (current_time >= t_lunch_time + datetime.timedelta(seconds= -15) and current_time < t_lunch_time) or (current_time >= t_dinner_time + datetime.timedelta(seconds= -15) and current_time < t_dinner_time)
+
+        if eat and self.SETTING["eatAlarm"]:
+            self.MessageWindow.text = "请准备下课用餐"
+            self.MessageWindow.reset_attr(self.SETTING["messageColor"],self.SETTING["messageFontsize"],self.SETTING["cnFont"])
             
+            if not self.canteenAccept:
+                canteen = QMessageBox(self.SettingWindow)
+                canteen.setIcon(QMessageBox.Question)
+                canteen.setWindowTitle("食堂发来了一个邀请")
+                canteen.setText("亲爱的老师，我们可以去吃饭了吗？")
+                ok = canteen.addButton('当然可以', QMessageBox.AcceptRole)  # 使用 addButton() 方法添加自定义按钮
+                no = canteen.addButton('讲完这个', QMessageBox.RejectRole)
+                canteen.setDefaultButton(ok)
+                happy = canteen.exec_()
+                if happy == QMessageBox.AcceptRole:
+                    self.canteenAccept = True
+        else:
+            self.canteenAccept = False
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     Run = RunController()
